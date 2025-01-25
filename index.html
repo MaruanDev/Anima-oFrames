@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Imagens em Sequência</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body, html {
+      width: 100%;
+      height: 100%;
+    }
+
+    .fullscreen-image {
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
+      width: 100%;
+      height: 100%;
+    }
+  </style>
+</head>
+<body>
+  <div class="fullscreen-image" id="image-container"></div>
+
+  <script>
+    const imageContainer = document.getElementById("image-container");
+
+    // Gerar dinamicamente os caminhos das imagens
+    const imagePaths = [
+      ...Array.from({ length: 300 }, (_, i) =>
+        `img/gojeta/gojeta_${String(i).padStart(3, '0')}.jpg`),
+      ...Array.from({ length: 300 }, (_, i) =>
+        `img/Vegito/Vegito_${String(i).padStart(3, '0')}.jpg`),
+      ...Array.from({ length: 300 }, (_, i) =>
+        `img/GokuBlack/GokuBlack_${String(i).padStart(3, '0')}.jpg`),
+      ...Array.from({ length: 247 }, (_, i) =>
+        `img/GokuUi/GokuUi_${String(i).padStart(3, '0')}.jpg`),
+      ...Array.from({ length: 291 }, (_, i) =>  // Alterado para 291 para ir até GohanBest_290.jpg
+        `img/GohanBest/GohanBest_${String(i).padStart(3, '0')}.jpg`)
+    ];
+
+    let currentIndex = 0;
+    let isImageLoaded = true;  // Variável de controle para verificar se a imagem foi carregada
+
+    // Função para carregar a imagem de forma assíncrona
+    function loadImage(path) {
+      return new Promise((resolve, reject) => {
+        const img = new Image();
+        img.src = path;
+        img.onload = () => resolve(img);
+        img.onerror = () => reject(new Error('Imagem não carregada'));
+      });
+    }
+
+    // Função para trocar a imagem com controle de carregamento
+    async function changeImage() {
+      if (!isImageLoaded) return;  // Se a imagem não foi carregada, não troca
+
+      isImageLoaded = false;  // Bloqueia até a nova imagem ser carregada
+      currentIndex = (currentIndex + 1) % imagePaths.length;
+
+      try {
+        const img = await loadImage(imagePaths[currentIndex]);
+        imageContainer.style.backgroundImage = `url(${img.src})`;
+      } catch (error) {
+        console.error(error);
+      } finally {
+        isImageLoaded = true;  // Libera a troca de imagem para o próximo clique
+      }
+    }
+
+    // Definir a imagem inicial
+    loadImage(imagePaths[currentIndex]).then(img => {
+      imageContainer.style.backgroundImage = `url(${img.src})`;
+    });
+
+    // Adiciona um evento de clique para alternar as imagens
+    document.body.addEventListener("click", changeImage);
+  </script>
+</body>
+</html>
